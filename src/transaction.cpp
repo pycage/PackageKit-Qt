@@ -744,6 +744,4 @@ Transaction::InternalError Transaction::parseError(const QString &errorName)
     return Transaction::InternalErrorFailed;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include "transaction.moc"
-#endif

@@ -12,8 +12,6 @@ endif ()
 if (Qt5_FOUND)
   find_package(Qt5DBus REQUIRED)
   find_package(Qt5Sql REQUIRED)
-  set(CMAKE_AUTOMOC TRUE)
-
   include_directories(${Qt5Core_INCLUDE_DIRS}
                       ${Qt5DBus_INCLUDE_DIRS}
                       ${Qt5Sql_INCLUDE_DIRS}
@@ -27,6 +25,7 @@ endif ()
 
 include_directories(${CMAKE_BINARY_DIR}
 		    ${CMAKE_CURRENT_BINARY_DIR}
+		    ${CMAKE_CURRENT_BINARY_DIR}/src
 		    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -68,7 +67,9 @@ set_source_files_properties(${PK_TRANSACTION_INTERFACE_XML} PROPERTIES CLASSNAME
 if (Qt5_FOUND)
   qt5_add_dbus_interface(packagekitqt_SRC ${PK_INTERFACE_XML} daemonproxy)
   qt5_add_dbus_interface(packagekitqt_SRC ${PK_TRANSACTION_INTERFACE_XML} transactionproxy)
-  qt5_wrap_cpp(packagekitqt_MOC_SRC ${packagekitqt_HEADERS} ${packagekitqt_HEADERS_PRIVATE})
+  qt5_generate_moc(daemon.h daemon.moc)
+  qt5_generate_moc(transaction.h transaction.moc)
+  add_custom_target(mocs DEPENDS daemon.moc transaction.moc)
 elseif (Qt4_FOUND)
   qt4_add_dbus_interface(packagekitqt_SRC ${PK_INTERFACE_XML} daemonproxy)
   qt4_add_dbus_interface(packagekitqt_SRC ${PK_TRANSACTION_INTERFACE_XML} transactionproxy)
@@ -78,6 +79,10 @@ endif ()
 
 add_library(packagekit-qt2 SHARED ${packagekitqt_SRC} ${packagekitqt_HEADERS} ${packagekitqt_HEADERS_PRIVATE})
 set_target_properties(packagekit-qt2 PROPERTIES VERSION ${QPACKAGEKIT_VERSION} SOVERSION ${QPACKAGEKIT_API_LEVEL})
+
+if (Qt5_FOUND)
+  add_dependencies(packagekit-qt2 mocs)
+endif ()
 
 target_link_libraries(packagekit-qt2
 		${QT_LIBRARIES}
