@@ -69,11 +69,15 @@ if (Qt5_FOUND)
   qt5_generate_moc(daemon.h daemon.moc)
   qt5_generate_moc(transaction.h transaction.moc)
   add_custom_target(mocs DEPENDS daemon.moc transaction.moc)
+
+  set(PKGCONFIG_REQUIRES "Qt5Core, Qt5DBus, Qt5Sql, Qt5Xml")
 elseif (Qt4_FOUND)
   qt4_add_dbus_interface(packagekitqt_SRC ${PK_INTERFACE_XML} daemonproxy)
   qt4_add_dbus_interface(packagekitqt_SRC ${PK_TRANSACTION_INTERFACE_XML} transactionproxy)
   qt4_automoc(${packagekitqt_SRC})
   qt4_wrap_cpp(packagekitqt_MOC_SRC ${packagekitqt_HEADERS} ${packagekitqt_HEADERS_PRIVATE})
+
+  set(PKGCONFIG_REQUIRES "QtCore, QtDBus, QtSql, QtXml")
 endif ()
 
 add_library(packagekit-qt2 SHARED ${packagekitqt_SRC} ${packagekitqt_HEADERS} ${packagekitqt_HEADERS_PRIVATE})
