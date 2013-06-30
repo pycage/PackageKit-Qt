@@ -16,6 +16,8 @@ if (Qt5_FOUND)
                       ${Qt5DBus_INCLUDE_DIRS}
                       ${Qt5Sql_INCLUDE_DIRS}
   )
+  add_definitions(${Qt5DBus_DEFINITIONS})
+  add_definitions(${Qt5Sql_DEFINITIONS})
 elseif (Qt4_FOUND)
   set(QT_USE_QTDBUS TRUE)
   set(QT_USE_QTSQL TRUE)
@@ -85,11 +87,14 @@ set_target_properties(packagekit-qt2 PROPERTIES VERSION ${QPACKAGEKIT_VERSION} S
 
 if (Qt5_FOUND)
   add_dependencies(packagekit-qt2 mocs)
-endif ()
-
-target_link_libraries(packagekit-qt2
+  target_link_libraries(packagekit-qt2
+		${Qt5DBus_LIBRARIES} ${Qt5Sql_LIBRARIES}
+  )
+elseif (Qt4_FOUND)
+  target_link_libraries(packagekit-qt2
 		${QT_LIBRARIES}
-)
+  )
+endif ()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/packagekit-qt2.pc.in
   ${CMAKE_CURRENT_BINARY_DIR}/packagekit-qt2.pc
