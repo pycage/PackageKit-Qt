@@ -3,9 +3,9 @@ exec_prefix=${prefix}
 libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
 includedir=${prefix}/include
 
-Name: packagekit-qt2
+Name: packagekit-qt5
 Description: PackageKit is a system daemon for installing stuff.
 Version: @VERSION@
-Requires: QtCore, QtDBus, QtSql, QtXml
-Libs: -L${libdir} -lpackagekit-qt2
-Cflags: -I${includedir}/PackageKit/packagekit-qt2
+Requires: Qt5Core, Qt5DBus, Qt5Sql, Qt5Xml
+Libs: -L${libdir} -lpackagekit-qt5
+Cflags: -I${includedir}/PackageKit/packagekit-qt5

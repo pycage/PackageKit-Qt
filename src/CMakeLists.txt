@@ -72,41 +72,41 @@ if (Qt5_FOUND)
   qt5_generate_moc(transaction.h transaction.moc)
   add_custom_target(mocs DEPENDS daemon.moc transaction.moc)
 
-  set(PKGCONFIG_REQUIRES "Qt5Core, Qt5DBus, Qt5Sql, Qt5Xml")
+  set(LIBNAME "packagekit-qt5")
 elseif (Qt4_FOUND)
   qt4_add_dbus_interface(packagekitqt_SRC ${PK_INTERFACE_XML} daemonproxy)
   qt4_add_dbus_interface(packagekitqt_SRC ${PK_TRANSACTION_INTERFACE_XML} transactionproxy)
   qt4_automoc(${packagekitqt_SRC})
   qt4_wrap_cpp(packagekitqt_MOC_SRC ${packagekitqt_HEADERS} ${packagekitqt_HEADERS_PRIVATE})
 
-  set(PKGCONFIG_REQUIRES "QtCore, QtDBus, QtSql, QtXml")
+  set(LIBNAME "packagekit-qt2")
 endif ()
 
-add_library(packagekit-qt2 SHARED ${packagekitqt_SRC} ${packagekitqt_HEADERS} ${packagekitqt_HEADERS_PRIVATE})
-set_target_properties(packagekit-qt2 PROPERTIES VERSION ${QPACKAGEKIT_VERSION} SOVERSION ${QPACKAGEKIT_API_LEVEL})
+add_library(${LIBNAME} SHARED ${packagekitqt_SRC} ${packagekitqt_HEADERS} ${packagekitqt_HEADERS_PRIVATE})
+set_target_properties(${LIBNAME} PROPERTIES VERSION ${QPACKAGEKIT_VERSION} SOVERSION ${QPACKAGEKIT_API_LEVEL})
 
 if (Qt5_FOUND)
-  add_dependencies(packagekit-qt2 mocs)
-  target_link_libraries(packagekit-qt2
+  add_dependencies(${LIBNAME} mocs)
+  target_link_libraries(${LIBNAME}
 		${Qt5DBus_LIBRARIES} ${Qt5Sql_LIBRARIES}
   )
 elseif (Qt4_FOUND)
-  target_link_libraries(packagekit-qt2
+  target_link_libraries(${LIBNAME}
 		${QT_LIBRARIES}
   )
 endif ()
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/packagekit-qt2.pc.in
-  ${CMAKE_CURRENT_BINARY_DIR}/packagekit-qt2.pc
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${LIBNAME}.pc.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${LIBNAME}.pc
   @ONLY
 )
 
-install(TARGETS packagekit-qt2 DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/packagekit-qt2.pc
+install(TARGETS ${LIBNAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${LIBNAME}.pc
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
 install(FILES ${packagekitqt_HEADERS}
-	DESTINATION include/PackageKit/packagekit-qt2
+        DESTINATION include/PackageKit/${LIBNAME}
 )
 
 add_subdirectory(modules)
