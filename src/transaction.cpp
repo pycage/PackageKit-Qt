@@ -316,36 +316,49 @@ QString Transaction::packageData(const QString &packageID)
 QString Transaction::packageIcon(const QString &packageID)
 {
     QString path;
+    QStringList desktopFiles = Transaction::packageDesktopFiles(
+                Transaction::packageName(packageID));
+
+    if (desktopFiles.size()) {
+        QFile desktopFile(desktopFiles.at(0));
+        if (desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            while (!desktopFile.atEnd()) {
+                QByteArray line = desktopFile.readLine().trimmed();
+                if (line.startsWith("Icon=")) {
+                    path = line.mid(5);
+                    break;
+                }
+            }
+            desktopFile.close();
+        } else {
+            qDebug() << "Cannot open desktop file " << desktopFile.fileName();
+        }
+    }
+
+    return path;
+}
+
+QStringList Transaction::packageDesktopFiles(const QString &packageName)
+{
+    QStringList desktopFiles;
     QSqlDatabase db = QSqlDatabase::database(PK_DESKTOP_DEFAULT_DATABASE);
     if (!db.isOpen()) {
         qDebug() << "Desktop files database is not open";
-        return path;
+        return desktopFiles;
     }
 
     QSqlQuery q(db);
     q.prepare("SELECT filename FROM cache WHERE package = :name");
-    q.bindValue(":name", Transaction::packageName(packageID));
+    q.bindValue(":name", packageName);
     if (q.exec()) {
-        if (q.next()) {
-            QFile desktopFile(q.value(0).toString());
-            if (desktopFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                while (!desktopFile.atEnd()) {
-                    QByteArray line = desktopFile.readLine().trimmed();
-                    if (line.startsWith("Icon=")) {
-                        path = line.mid(5);
-                        break;
-                    }
-                }
-                desktopFile.close();
-            } else {
-                qDebug() << "Cannot open desktop file " << q.value(0).toString();
-            }
+        while (q.next()) {
+            desktopFiles << q.value(0).toString();
         }
     } else {
         qDebug() << "Error while running query " << q.executedQuery();
     }
 
-    return path;
+    return desktopFiles;
 }
 
 QString Transaction::lastPackage() const

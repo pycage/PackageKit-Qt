@@ -1199,6 +1199,11 @@ public:
      */
     static QString packageIcon(const QString &packageID);
 
+    /**
+     * Returns the desktop files stored in the \p package.
+     */
+    static QStringList packageDesktopFiles(const QString &packageName);
+
 Q_SIGNALS:
     /**
      * The transaction has changed one of it's properties
